@@ -1,0 +1,172 @@
+import 'package:flutter/material.dart';
+
+// Step 1: ฟังก์ชัน main() เริ่มต้นแอพ
+void main() {
+  runApp(const MyApp());
+}
+
+// Step 2: คลาส MyApp เป็น root ของแอพ
+class MyApp extends StatelessWidget {
+  const MyApp({super.key}); // คอนสตรัคเตอร์ของ MyApp
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false, // ปิด debug banner
+      title: 'User Profile',  // ชื่อของแอพ
+      theme: ThemeData(primarySwatch: Colors.blue), // กำหนดธีมของแอพ
+      home: const UserProfilePage(), // กำหนดหน้าเริ่มต้นให้เป็น UserProfilePage
+    );
+  }
+}
+
+// Step 3: UserProfilePage เป็นหน้าแสดงโปรไฟล์ผู้ใช้
+class UserProfilePage extends StatelessWidget {
+  const UserProfilePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // กำหนดข้อมูลตัวอย่างที่จะแสดง
+    String name = "John Doe";
+    String job = "Software Developer";
+    String phone = "123-456-7890";
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("User Profile"),
+        backgroundColor: Colors.amber, // กำหนดสีของ AppBar
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // จัดให้อยู่กลาง
+          children: [
+            CircleAvatar(
+              radius: 50, // ขนาดของรูปโปรไฟล์
+              backgroundImage: NetworkImage("https://www.example.com/profile.jpg"), // ใช้ URL สำหรับรูปโปรไฟล์
+            ),
+            const SizedBox(height: 16), // ช่องว่างระหว่างรูปโปรไฟล์และข้อมูล
+            Text(
+              name, // แสดงชื่อ
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold, // ทำให้ชื่อหนา
+              ),
+            ),
+            Text(
+              job, // แสดงอาชีพ
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.grey, // กำหนดสีเทา
+              ),
+            ),
+            Text(
+              phone, // แสดงเบอร์โทร
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.grey, // กำหนดสีเทา
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // เมื่อกดปุ่ม Edit จะไปที่หน้า EditProfilePage
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditProfilePage(
+                      name: name,
+                      job: job,
+                      phone: phone,
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Edit Profile'), // ข้อความในปุ่ม
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Step 4: EditProfilePage เป็นหน้าสำหรับแก้ไขข้อมูลโปรไฟล์
+class EditProfilePage extends StatefulWidget {
+  final String name;
+  final String job;
+  final String phone;
+
+  const EditProfilePage({
+    super.key,
+    required this.name,
+    required this.job,
+    required this.phone,
+  });
+
+  @override
+  State<EditProfilePage> createState() => _EditProfilePageState();
+}
+
+class _EditProfilePageState extends State<EditProfilePage> {
+  late TextEditingController _nameController;
+  late TextEditingController _jobController;
+  late TextEditingController _phoneController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Step 5: กำหนดค่าเริ่มต้นของ TextEditingController จากข้อมูลที่รับมาจากหน้า UserProfilePage
+    _nameController = TextEditingController(text: widget.name);
+    _jobController = TextEditingController(text: widget.job);
+    _phoneController = TextEditingController(text: widget.phone);
+  }
+
+  @override
+  void dispose() {
+    // Step 6: ล้างข้อมูลใน controller เมื่อ widget นี้ถูกทิ้ง
+    _nameController.dispose();
+    _jobController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Edit Profile"), // ชื่อของหน้า AppBar
+        backgroundColor: Colors.amber, // สีของ AppBar
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0), // กำหนด padding รอบๆ หน้า
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, // จัดข้อความให้เริ่มจากซ้าย
+          children: [
+            TextField(
+              controller: _nameController, // ใช้ controller สำหรับจัดการข้อมูล
+              decoration: const InputDecoration(labelText: 'Name'), // คำอธิบายสำหรับ TextField
+            ),
+            TextField(
+              controller: _jobController, // ใช้ controller สำหรับจัดการข้อมูล
+              decoration: const InputDecoration(labelText: 'Job'), // คำอธิบายสำหรับ TextField
+            ),
+            TextField(
+              controller: _phoneController, // ใช้ controller สำหรับจัดการข้อมูล
+              decoration: const InputDecoration(labelText: 'Phone'), // คำอธิบายสำหรับ TextField
+            ),
+            const SizedBox(height: 20), // ช่องว่างระหว่างฟอร์มและปุ่ม
+            ElevatedButton(
+              onPressed: () {
+                // Step 7: เมื่อกดปุ่ม Save จะทำการแสดง SnackBar แจ้งว่าโปรไฟล์ได้รับการอัปเดต
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Profile updated')), // แสดงข้อความอัปเดต
+                );
+              },
+              child: const Text('Save'), // ข้อความในปุ่ม
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
